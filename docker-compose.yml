@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: aiplayground
+      POSTGRES_PASSWORD: aiplayground
+      POSTGRES_DB: ai_playground
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://aiplayground:aiplayground@postgres:5432/ai_playground
+      JWT_SECRET: your-super-secret-jwt-key
+      JWT_REFRESH_SECRET: your-super-secret-refresh-key
+      NODE_ENV: production
+      PORT: 3001
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
